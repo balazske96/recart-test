@@ -1,0 +1,63 @@
+### Test successful cart/create webhook with valid HMAC
+# @name cartCreateWebhook
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+X-Shopify-Topic: carts/create
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+# This HMAC is pre-computed for the payload below with the secret 'myshopifysecret'
+X-Shopify-Hmac-Sha256: lBwXX0JQhj60+OtuIlQV5nN6+7jcniQETbmX28Wk2ZE=
+
+{
+  "id": "123456789",
+  "cart_token": "abc123",
+  "shop_id": "test-shop.myshopify.com",
+  "items": [
+    {
+      "product_id": "123",
+      "quantity": 1
+    }
+  ]
+}
+
+### Test successful cart/update webhook with valid HMAC
+# @name cartUpdateWebhook
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+X-Shopify-Topic: carts/update
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+# This HMAC is pre-computed for the payload below with the secret 'myshopifysecret'
+X-Shopify-Hmac-Sha256: Dn1G5P46dHKj5+9tHAZ1Uxh6Igbq77ytY1pLzeWWZMc=
+
+{
+  "id": "123456789",
+  "cart_token": "abc123",
+  "shop_id": "test-shop.myshopify.com",
+  "items": [
+    {
+      "product_id": "123",
+      "quantity": 2
+    }
+  ],
+  "updated_at": "2025-09-08T12:00:00Z"
+}
+
+### Test with custom data and dynamic HMAC generation
+# @name dynamicHmacTest
+# First, we need to run this script to generate a valid HMAC
+# You'll need to run this in a terminal and copy the output to the X-Shopify-Hmac-Sha256 header below
+# node -e "console.log(require('crypto').createHmac('sha256', 'myshopifysecret').update(Buffer.from(JSON.stringify({id:'custom-id-123',customer:{email:'test@example.com',first_name:'Test',last_name:'User'}}), 'utf8')).digest('base64'))"
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+X-Shopify-Topic: customers/create
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+# Replace this with the output from the node script above
+X-Shopify-Hmac-Sha256: GENERATED_HMAC_GOES_HERE
+
+{
+  "id": "custom-id-123",
+  "customer": {
+    "email": "test@example.com",
+    "first_name": "Test",
+    "last_name": "User"
+  }
+}

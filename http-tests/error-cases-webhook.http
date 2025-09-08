@@ -1,0 +1,48 @@
+### Test webhook with invalid HMAC
+# @name invalidHmacTest
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+X-Shopify-Topic: carts/create
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+# This is an invalid HMAC that doesn't match the payload
+X-Shopify-Hmac-Sha256: invalid_hmac_signature_that_will_be_rejected
+
+{
+  "id": "123456789",
+  "cart_token": "abc123",
+  "shop_id": "test-shop.myshopify.com",
+  "items": [
+    {
+      "product_id": "123",
+      "quantity": 1
+    }
+  ]
+}
+
+### Test webhook with missing HMAC header
+# @name missingHmacTest
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+X-Shopify-Topic: carts/create
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+# X-Shopify-Hmac-Sha256 header is intentionally missing
+
+{
+  "id": "123456789",
+  "cart_token": "abc123",
+  "shop_id": "test-shop.myshopify.com"
+}
+
+### Test webhook with missing topic header
+# @name missingTopicTest
+POST http://localhost:3000/webhooks
+Content-Type: application/json
+# X-Shopify-Topic header is intentionally missing
+X-Shopify-Shop-Domain: test-shop.myshopify.com
+X-Shopify-Hmac-Sha256: lBwXX0JQhj60+OtuIlQV5nN6+7jcniQETbmX28Wk2ZE=
+
+{
+  "id": "123456789",
+  "cart_token": "abc123",
+  "shop_id": "test-shop.myshopify.com"
+}
